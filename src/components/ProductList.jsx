@@ -5,6 +5,7 @@ const ProductList = () => {
   const [search, setSearch] = useState("");
   const [sortOption, setSortOption] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [cart,setcart]=useState([])
   const productsPerPage = 5;
 
   useEffect(() => {
@@ -19,6 +20,10 @@ const ProductList = () => {
     };
     fetchProducts();
   }, []);
+
+  useEffect(()=>{
+    console.log(cart);
+  })
 
   const filteredProducts = products.filter((product) =>
     product.title.toLowerCase().includes(search.toLowerCase())
@@ -46,7 +51,30 @@ const ProductList = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+
+function addToCart(product) {
+  setcart(prevCart => {
+    const existingItem = prevCart.find(item => item.id === product.id);
+
+    if (existingItem) {
+      // same product → quantity increase
+      return prevCart.map(item =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      );
+    } else {
+      // new product
+      return [...prevCart, { ...product, quantity: 1 }];
+    }
+  });
+}
+
+
+
+
   return (
+
     <div className="p-4 md:p-6">
       {/* Search + Sort */}
       <div className="flex flex-col sm:flex-row sm:justify-between mb-6 gap-4">
@@ -68,6 +96,35 @@ const ProductList = () => {
         </select>
       </div>
 
+    {/* Cart Info */}
+    <div>
+        <h2>Invoice</h2>
+
+{cart.length === 0 ? (
+  <p>No items in cart</p>
+) : (
+  <>
+    <p>Total Items: {cart.reduce((sum, item) => sum + item.quantity, 0)}</p>
+    <hr />
+
+    {cart.map(item => (
+      <p key={item.id}>
+        {item.title} — ${item.price} × {item.quantity}
+      </p>
+    ))}
+
+    <hr />
+    <p>
+      Total Amount: $
+      {cart.reduce(
+        (sum, item) => sum + Number(item.price) * item.quantity,
+        0
+      )}
+    </p>
+  </>
+)}
+
+    </div>
       {/* Product Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentProducts.map((product) => (
@@ -76,6 +133,14 @@ const ProductList = () => {
     <h2 className="font-bold text-lg text-center">{product.title}</h2>
     <p className="text-gray-600 mt-1">${product.price}</p>
     <p className="text-yellow-500 mt-1">Rating: {product.rating}</p>
+    {/* <button className="bg-green-950 text-white px-4 py-2 rounded disabled:opacity-50"onClick={()=>addToCart(products)}>Add to cart</button> */}
+    <button
+  className="bg-green-950 text-white px-4 py-2 rounded"
+  onClick={() => addToCart(product)}
+>
+  Add to cart
+</button>
+
   </div>
 ))}
 
@@ -83,26 +148,30 @@ const ProductList = () => {
 
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row justify-center items-center mt-6 gap-4">
-        <button
+        <button className="bg-pink-950 text-white px-4 py-2 rounded disabled:opacity-50"
           onClick={handlePrev}
           disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        //   className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
         >
           Prev
         </button>
-        <span className="px-4 py-2">
+        <span className="bg-blue-950 text-white px-4 py-2 rounded disabled:opacity-50">
           Page {currentPage} of {totalPages}
         </span>
-        <button
+        <button className="bg-pink-950 text-white px-4 py-2 rounded disabled:opacity-50"
           onClick={handleNext}
           disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        //   className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
         >
           Next
         </button>
       </div>
+
+    
     </div>
   );
 };
 
 export default ProductList;
+
+
