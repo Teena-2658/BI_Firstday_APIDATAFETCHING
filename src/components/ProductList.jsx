@@ -97,34 +97,57 @@ function addToCart(product) {
       </div>
 
     {/* Cart Info */}
-    <div>
-        <h2>Invoice</h2>
+    <div className="max-w-md mx-auto my-8 bg-white border rounded-lg shadow-md p-5">
+  <h2 className="text-xl font-bold mb-2 text-gray-800">🧾 Invoice</h2>
 
-{cart.length === 0 ? (
-  <p>No items in cart</p>
-) : (
-  <>
-    <p>Total Items: {cart.reduce((sum, item) => sum + item.quantity, 0)}</p>
-    <hr />
-
-    {cart.map(item => (
-      <p key={item.id}>
-        {item.title} — ${item.price} × {item.quantity}
+  {cart.length === 0 ? (
+    <p className="text-gray-500">No items in the cart</p>
+  ) : (
+    <>
+      {/* Total Items */}
+      <p className="text-sm text-gray-600 mb-3">
+        Total Items:{" "}
+        <span className="font-semibold">
+          {cart.reduce((sum, item) => sum + item.quantity, 0)}
+        </span>
       </p>
-    ))}
 
-    <hr />
-    <p>
-      Total Amount: $
-      {cart.reduce(
-        (sum, item) => sum + Number(item.price) * item.quantity,
-        0
-      )}
-    </p>
-  </>
-)}
+      {/* Product List */}
+      <div className="border-t border-b py-3 space-y-2">
+        {cart.map(item => (
+          <div
+            key={item.id}
+            className="flex justify-between items-center text-sm"
+          >
+            <div>
+              <p className="font-medium text-gray-800">{item.title}</p>
+              <p className="text-gray-500">
+                ${item.price} × {item.quantity}
+              </p>
+            </div>
 
-    </div>
+            <p className="font-semibold text-gray-700">
+              ${Number(item.price) * item.quantity}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Total Amount */}
+      <div className="flex justify-between items-center mt-4">
+        <p className="text-lg font-bold text-gray-800">Total Amount</p>
+        <p className="text-lg font-bold text-green-700">
+          $
+          {cart.reduce(
+            (sum, item) => sum + Number(item.price) * item.quantity,
+            0
+          )}
+        </p>
+      </div>
+    </>
+  )}
+</div>
+
       {/* Product Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentProducts.map((product) => (
