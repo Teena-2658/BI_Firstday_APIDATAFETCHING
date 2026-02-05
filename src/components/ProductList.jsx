@@ -98,7 +98,7 @@ function addToCart(product) {
 
     {/* Cart Info */}
     <div className="max-w-md mx-auto my-8 bg-white border rounded-lg shadow-md p-5">
-  <h2 className="text-xl font-bold mb-2 text-gray-800">🧾 Invoice</h2>
+  <h2 className="bg-blue-950 text-white px-4 py-2 rounded disabled:opacity-50">ADD TO CART SECTION</h2>
 
   {cart.length === 0 ? (
     <p className="text-gray-500">No items in the cart</p>
