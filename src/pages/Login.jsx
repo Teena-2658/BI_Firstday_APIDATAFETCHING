@@ -10,30 +10,30 @@ const Login = ({ setIsLoggedIn }) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:3000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error);
+        alert(data.error || "Login failed");
         return;
       }
 
-      // ✅ login success
       setIsLoggedIn(true);
+      alert("Login successful");
       navigate("/");
-    } catch (err) {
-      console.error(err);
-      alert("Server error");
+    } catch (error) {
+      console.error(error);
+      alert("Server not reachable");
     }
   };
 
@@ -61,7 +61,10 @@ const Login = ({ setIsLoggedIn }) => {
             required
           />
 
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-md"
+          >
             Login
           </button>
         </form>
