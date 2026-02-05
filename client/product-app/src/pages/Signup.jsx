@@ -5,7 +5,7 @@ const Signup = () => {
   const [username, setusername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+console.log(import.meta.env.VITE_API_URL);
 const handleSignup = async (e) => {
   e.preventDefault();
 
