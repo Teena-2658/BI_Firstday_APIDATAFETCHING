@@ -7,10 +7,15 @@ const authRoutes = require('./modules/auth/auth.routes');
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST"],
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://bi-firstday-apidatafetching.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
+
 
 app.use(express.json());
 
