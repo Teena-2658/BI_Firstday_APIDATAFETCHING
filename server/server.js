@@ -25,9 +25,7 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // ✅ FIXED
-
+app.use(cors(corsOptions)); // ✅ THIS IS ENOUGH
 app.use(express.json());
 
 // routes
