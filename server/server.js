@@ -1,8 +1,8 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { connectDB } = require('./common/db/mongo');
-const authRoutes = require('./modules/auth/auth.routes');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const { connectDB } = require("./common/db/mongo");
+const authRoutes = require("./modules/auth/auth.routes");
 
 const app = express();
 
@@ -12,29 +12,26 @@ const allowedOrigins = [
   "https://bi-firstday-apidatafetching.vercel.app",
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, origin); // 👈 return exact origin
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, origin); // return exact origin
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-// 🔴 THIS LINE IS CRITICAL
-app.options("*", cors());
-
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // ✅ FIXED
 
 app.use(express.json());
 
 // routes
-app.use('/api', authRoutes);
+app.use("/api", authRoutes);
 
 // db
 connectDB();
