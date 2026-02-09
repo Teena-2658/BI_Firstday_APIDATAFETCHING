@@ -10,12 +10,15 @@ const productRoutes = require("./modules/products/product.routes");
 
 const app = express();
 
-/* -------------------- ENSURE UPLOADS -------------------- */
+/* -------------------- CONNECT DB -------------------- */
+connectDB();
+
+/* -------------------- ENSURE UPLOADS FOLDER -------------------- */
 if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
 
-/* -------------------- CORS (JWT SAFE) -------------------- */
+/* -------------------- CORS FIX (IMPORTANT) -------------------- */
 app.use(
   cors({
     origin: [
@@ -23,28 +26,29 @@ app.use(
       "http://localhost:5174",
       "http://localhost:3000",
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // ✅ REQUIRED FOR CORS ERROR FIX
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 /* -------------------- MIDDLEWARE -------------------- */
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+/* -------------------- STATIC FILES -------------------- */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* -------------------- ROUTES -------------------- */
 app.use("/api", authRoutes);
 app.use("/api/products", productRoutes);
 
-/* -------------------- DB -------------------- */
-connectDB();
-
 /* -------------------- ROOT -------------------- */
 app.get("/", (req, res) => {
   res.send("API running 🚀");
 });
 
-/* -------------------- START -------------------- */
+/* -------------------- START SERVER -------------------- */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
