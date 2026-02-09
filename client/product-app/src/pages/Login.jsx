@@ -27,10 +27,13 @@ const Login = ({ setIsLoggedIn, setUsername }) => {
         return;
       }
 
-      // ✅ Save username and update state
+      // ✅ ADD THIS (MOST IMPORTANT)
+      localStorage.setItem("token", data.token);
+
+      // existing code
       localStorage.setItem("username", usernameInput);
       setIsLoggedIn(true);
-      setUsername(usernameInput); // ← important to update Navbar instantly
+      setUsername(usernameInput);
       navigate("/");
 
     } catch (error) {

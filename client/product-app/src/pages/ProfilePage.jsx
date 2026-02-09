@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-const BACKEND_URL = "https://my-backend.onrender.com"; // Render backend URL
+const BACKEND_URL = "https://bi-firstday-apidatafetching.onrender.com"; // Render backend URL
 
 const ProfilePage = () => {
   const [products, setProducts] = useState([]);
@@ -66,6 +66,7 @@ const ProfilePage = () => {
       } else {
         await axios.post(
           `${BACKEND_URL}/api/products`,
+          // `https://bi-firstday-apidatafetching.onrender.com/api/products`,
           formData,
           config
         );
