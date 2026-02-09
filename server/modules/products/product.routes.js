@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const Product = require("./product.model");
-const auth = require("../auth/auth.middleware");
+const authMiddleware = require("../auth/auth.middleware");
 
 /* -------------------- MULTER -------------------- */
 const storage = multer.diskStorage({
@@ -18,31 +18,34 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 /* -------------------- CREATE -------------------- */
-router.post("/", auth, upload.single("image"), async (req, res) => {
-  try {
-    const { name, price } = req.body;
+router.post(
+  "/",
+  upload.single("image"), // 👈 multer first
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { name, price } = req.body;
 
-    if (!req.file) {
-      return res.status(400).json({ error: "Image required" });
+      const product = await Product.create({
+        user: req.user.id || req.user._id,
+        name,
+        price,
+        image: req.file ? req.file.path : null,
+      });
+
+      res.status(201).json(product);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-
-    const product = await Product.create({
-      user: req.user._id,
-      name,
-      price,
-      image: req.file.path,
-    });
-
-    res.status(201).json(product);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
-});
+);
 
 /* -------------------- READ -------------------- */
-router.get("/", auth, async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    const products = await Product.find({ user: req.user._id });
+    const products = await Product.find({
+      user: req.user.id || req.user._id,
+    });
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -50,44 +53,41 @@ router.get("/", auth, async (req, res) => {
 });
 
 /* -------------------- UPDATE -------------------- */
-router.put("/:id", auth, upload.single("image"), async (req, res) => {
-  try {
-    const updateData = {
-      name: req.body.name,
-      price: req.body.price,
-    };
+router.put(
+  "/:id",
+  upload.single("image"),
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const updateData = {
+        name: req.body.name,
+        price: req.body.price,
+      };
 
-    if (req.file) {
-      updateData.image = req.file.path;
+      if (req.file) {
+        updateData.image = req.file.path;
+      }
+
+      const product = await Product.findOneAndUpdate(
+        { _id: req.params.id, user: req.user.id || req.user._id },
+        updateData,
+        { new: true }
+      );
+
+      res.json(product);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-
-    const product = await Product.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
-      updateData,
-      { new: true }
-    );
-
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    res.json(product);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
-});
+);
 
 /* -------------------- DELETE -------------------- */
-router.delete("/:id", auth, async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
-    const product = await Product.findOneAndDelete({
+    await Product.findOneAndDelete({
       _id: req.params.id,
-      user: req.user._id,
+      user: req.user.id || req.user._id,
     });
-
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
 
     res.json({ message: "Product deleted" });
   } catch (err) {
