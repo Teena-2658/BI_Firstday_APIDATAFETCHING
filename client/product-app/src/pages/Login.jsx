@@ -24,13 +24,14 @@ const Login = ({ setIsLoggedIn }) => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Login failed");
-        return;
-      }
+  alert(data.error || "Login failed");
+  return;
+}
 
-      setIsLoggedIn(true);
-      alert("Login successful");
-      navigate("/");
+setIsLoggedIn(true);
+setUsername(username); // 👈 THIS WAS MISSING
+navigate("/");
+
     } catch (error) {
       console.error(error);
       alert("Server not reachable");

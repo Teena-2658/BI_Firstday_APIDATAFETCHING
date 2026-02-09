@@ -11,24 +11,19 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Navbar />
+      <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
 
       <Routes>
-        {/* Signup page */}
         <Route path="/signup" element={<Signup />} />
 
-        {/* Login page */}
         <Route
           path="/login"
           element={<Login setIsLoggedIn={setIsLoggedIn} />}
         />
 
-        {/* Products page (protected) */}
         <Route
           path="/"
-          element={
-            isLoggedIn ? <ProductList /> : <Navigate to="/login" />
-          }
+          element={isLoggedIn ? <ProductList /> : <Navigate to="/login" />}
         />
       </Routes>
     </BrowserRouter>
