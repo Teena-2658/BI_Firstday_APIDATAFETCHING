@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-const BACKEND_URL = "https://bi-firstday-apidatafetching.onrender.com"; // Render backend URL
+const BACKEND_URL = "https://bi-firstday-apidatafetching.onrender.com";
 
-const ProfilePage = () => {
+export default function ProfilePage() {
   const [products, setProducts] = useState([]);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -12,7 +12,6 @@ const ProfilePage = () => {
 
   const fileRef = useRef(null);
 
-  // JWT token (login ke baad)
   const token = localStorage.getItem("token");
 
   const config = {
@@ -22,13 +21,9 @@ const ProfilePage = () => {
     withCredentials: true,
   };
 
-  /* ---------------- FETCH PRODUCTS ---------------- */
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(
-        `${BACKEND_URL}/api/products`,
-        config
-      );
+      const res = await axios.get(`${BACKEND_URL}/api/products`, config);
       setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("FETCH ERROR:", err.response?.data || err.message);
@@ -36,12 +31,9 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchProducts();
-    }
+    if (token) fetchProducts();
   }, [token]);
 
-  /* ---------------- ADD / UPDATE ---------------- */
   const handleAddOrUpdate = async (e) => {
     e.preventDefault();
 
@@ -66,13 +58,11 @@ const ProfilePage = () => {
       } else {
         await axios.post(
           `${BACKEND_URL}/api/products`,
-          // `https://bi-firstday-apidatafetching.onrender.com/api/products`,
           formData,
           config
         );
       }
 
-      // Reset form
       setName("");
       setPrice("");
       setImage(null);
@@ -84,22 +74,17 @@ const ProfilePage = () => {
     }
   };
 
-  /* ---------------- EDIT ---------------- */
   const handleEdit = (product) => {
     setEditingId(product._id);
     setName(product.name);
     setPrice(product.price);
   };
 
-  /* ---------------- DELETE ---------------- */
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
 
     try {
-      await axios.delete(
-        `${BACKEND_URL}/api/products/${id}`,
-        config
-      );
+      await axios.delete(`${BACKEND_URL}/api/products/${id}`, config);
       fetchProducts();
     } catch (err) {
       console.error("DELETE ERROR:", err.response?.data || err.message);
@@ -107,86 +92,94 @@ const ProfilePage = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>My Products</h2>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold mb-6 text-gray-800">
+          My Products
+        </h2>
 
-      {/* -------- FORM -------- */}
-      <form onSubmit={handleAddOrUpdate} style={{ marginBottom: "20px" }}>
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+        {/* FORM */}
+        <form
+          onSubmit={handleAddOrUpdate}
+          className="bg-white shadow-lg rounded-2xl p-6 mb-8 flex flex-wrap gap-3 items-center"
+        >
+          <input
+            type="text"
+            placeholder="Product Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border rounded-lg px-3 py-2 w-48 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+          />
 
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          required
-        />
+          <input
+            type="number"
+            placeholder="Price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="border rounded-lg px-3 py-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+          />
 
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files[0])}
-        />
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+            className="text-sm"
+          />
 
-        <button type="submit" style={{ marginLeft: "10px" }}>
-          {editingId ? "Update Product" : "Add Product"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition duration-200"
+          >
+            {editingId ? "Update Product" : "Add Product"}
+          </button>
+        </form>
 
-      {/* -------- PRODUCTS -------- */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+        {/* PRODUCTS */}
         {products.length > 0 ? (
-          products.map((p) => (
-            <div
-              key={p._id}
-              style={{
-                border: "1px solid gray",
-                padding: "10px",
-                width: "200px",
-                textAlign: "center",
-              }}
-            >
-              <h3>{p.name}</h3>
-              <p>Price: ₹{p.price}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map((p) => (
+              <div
+                key={p._id}
+                className="bg-white rounded-2xl shadow-md p-4 hover:shadow-xl transition duration-300"
+              >
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {p.name}
+                </h3>
+                <p className="text-gray-600 mb-2">₹{p.price}</p>
 
-              {p.image && (
-                <img
-                  src={`${BACKEND_URL}/${p.image}`}
-                  alt={p.name}
-                  style={{
-                    width: "150px",
-                    height: "150px",
-                    objectFit: "cover",
-                  }}
-                />
-              )}
+                {p.image && (
+                  <img
+                    src={`${BACKEND_URL}/${p.image}`}
+                    alt={p.name}
+                    className="w-full h-40 object-cover rounded-lg mb-3"
+                  />
+                )}
 
-              <div style={{ marginTop: "10px" }}>
-                <button
-                  onClick={() => handleEdit(p)}
-                  style={{ marginRight: "5px" }}
-                >
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(p._id)}>
-                  Delete
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(p)}
+                    className="flex-1 bg-yellow-500 text-white py-1 rounded-lg hover:bg-yellow-600 transition"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(p._id)}
+                    className="flex-1 bg-red-500 text-white py-1 rounded-lg hover:bg-red-600 transition"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
-          <p>No products added yet.</p>
+          <p className="text-gray-600">No products added yet.</p>
         )}
       </div>
     </div>
   );
-};
-
-export default ProfilePage;
+}
