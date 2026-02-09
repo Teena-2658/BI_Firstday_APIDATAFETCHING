@@ -5,7 +5,6 @@ const path = require("path");
 const fs = require("fs");
 const { connectDB } = require("./common/db/mongo");
 
-// Routes
 const authRoutes = require("./modules/auth/auth.routes");
 const productRoutes = require("./modules/products/product.routes");
 
@@ -16,7 +15,7 @@ if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
 
-/* -------------------- CORS (FIXED) -------------------- */
+/* -------------------- CORS -------------------- */
 app.use(
   cors({
     origin: [
@@ -30,9 +29,6 @@ app.use(
   })
 );
 
-// VERY IMPORTANT for preflight
-app.options("*", cors());
-
 /* -------------------- MIDDLEWARE -------------------- */
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -44,7 +40,7 @@ app.use("/api/products", productRoutes);
 /* -------------------- DB -------------------- */
 connectDB();
 
-/* -------------------- ROOT TEST -------------------- */
+/* -------------------- ROOT -------------------- */
 app.get("/", (req, res) => {
   res.send("API running 🚀");
 });
