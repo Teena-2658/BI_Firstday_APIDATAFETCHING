@@ -15,16 +15,27 @@ if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
 
-/* -------------------- CORS -------------------- */
+/* -------------------- CORS (FULLY FIXED) -------------------- */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://bi-firstday-apidatafetching.vercel.app",
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://bi-firstday-apidatafetching.vercel.app",
-    ],
+    origin: function (origin, callback) {
+      // allow server-to-server, Postman, curl
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
