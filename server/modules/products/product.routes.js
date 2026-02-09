@@ -20,7 +20,7 @@ const upload = multer({ storage });
 /* -------------------- CREATE -------------------- */
 router.post(
   "/",
-  upload.single("image"), // 👈 multer first
+  upload.single("image"),
   authMiddleware,
   async (req, res) => {
     try {
@@ -64,9 +64,7 @@ router.put(
         price: req.body.price,
       };
 
-      if (req.file) {
-        updateData.image = req.file.path;
-      }
+      if (req.file) updateData.image = req.file.path;
 
       const product = await Product.findOneAndUpdate(
         { _id: req.params.id, user: req.user.id || req.user._id },
