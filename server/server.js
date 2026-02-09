@@ -25,12 +25,14 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:3000",
+      "https://bi-firstday-apidatafetching.vercel.app"
     ],
-    credentials: true, // ✅ REQUIRED FOR CORS ERROR FIX
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 /* -------------------- MIDDLEWARE -------------------- */
 app.use(express.json());
