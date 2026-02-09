@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Login = ({ setIsLoggedIn }) => {
-  const [username, setUsername] = useState("");
+const Login = ({ setIsLoggedIn, setUsername }) => {
+  const [usernameInput, setUsernameInput] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -14,23 +14,24 @@ const Login = ({ setIsLoggedIn }) => {
         `${import.meta.env.VITE_API_URL}/api/login`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: usernameInput, password }),
         }
       );
 
       const data = await res.json();
+      console.log("LOGIN RESPONSE 👉", data);
 
       if (!res.ok) {
-  alert(data.error || "Login failed");
-  return;
-}
+        alert(data.error || "Login failed");
+        return;
+      }
 
-setIsLoggedIn(true);
-setUsername(username); // 👈 THIS WAS MISSING
-navigate("/");
+      // ✅ Save username and update state
+      localStorage.setItem("username", usernameInput);
+      setIsLoggedIn(true);
+      setUsername(usernameInput); // ← important to update Navbar instantly
+      navigate("/");
 
     } catch (error) {
       console.error(error);
@@ -47,8 +48,8 @@ navigate("/");
           <input
             type="text"
             placeholder="Enter Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={usernameInput}
+            onChange={(e) => setUsernameInput(e.target.value)}
             className="w-full border rounded-md px-3 py-2"
             required
           />

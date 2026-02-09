@@ -1,9 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Navbar = ({ isLoggedIn, setIsLoggedIn, username }) => {
   const navigate = useNavigate();
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const handleLogout = () => {
+    localStorage.removeItem("username");
     setIsLoggedIn(false);
     navigate("/login");
   };
@@ -12,29 +15,47 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, username }) => {
     <nav style={styles.nav}>
       <h2>Products</h2>
 
-      <div style={{ display: "flex", alignItems: "center" }}>
-        {isLoggedIn && (
-  <span style={styles.userBadge}>
-  Hey, {username}
-</span>
+      <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
+        {isLoggedIn && username && (
+          <div style={{ position: "relative" }}>
+            <span
+              style={styles.userBadge}
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
+              Hey, {username} ▼
+            </span>
 
-)}
+            {showDropdown && (
+              <div style={styles.dropdown}>
+                <Link
+                  to="/profile"
+                  style={styles.dropdownItem}
+                  onClick={() => setShowDropdown(false)}
+                >
+                  Profile
+                </Link>
+                <button style={styles.dropdownItem} onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
-        {!isLoggedIn ? (
+        {!isLoggedIn && (
           <>
-            <Link to="/login" style={styles.link}>Login</Link>
-            <Link to="/signup" style={styles.link}>Sign Up</Link>
+            <Link to="/login" style={styles.link}>
+              Login
+            </Link>
+            <Link to="/signup" style={styles.link}>
+              Sign Up
+            </Link>
           </>
-        ) : (
-          <button onClick={handleLogout} style={styles.link}>
-            Logout
-          </button>
         )}
       </div>
     </nav>
   );
 };
-
 
 const styles = {
   nav: {
@@ -54,6 +75,34 @@ const styles = {
     borderRadius: "4px",
     background: "transparent",
     cursor: "pointer",
+  },
+  userBadge: {
+    marginRight: "15px",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+  dropdown: {
+    position: "absolute",
+    top: "35px",
+    right: "0",
+    background: "white",
+    color: "#172554",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    minWidth: "120px",
+    zIndex: 10,
+    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+  },
+  dropdownItem: {
+    display: "block",
+    padding: "10px",
+    width: "100%",
+    textAlign: "left",
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    textDecoration: "none",
+    color: "#172554",
   },
 };
 
