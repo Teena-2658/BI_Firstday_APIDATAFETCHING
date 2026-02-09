@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const Product = require("./product.model");
-const authMiddleware = require("../../middlewares/auth");
+const auth = require("../auth/auth.middleware");
 
 /* -------------------- MULTER -------------------- */
 const storage = multer.diskStorage({
@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 /* -------------------- CREATE -------------------- */
-router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
+router.post("/", auth, upload.single("image"), async (req, res) => {
   try {
     const { name, price } = req.body;
 
@@ -40,7 +40,7 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
 });
 
 /* -------------------- READ -------------------- */
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
     const products = await Product.find({ user: req.user._id });
     res.json(products);
@@ -50,7 +50,7 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 /* -------------------- UPDATE -------------------- */
-router.put("/:id", authMiddleware, upload.single("image"), async (req, res) => {
+router.put("/:id", auth, upload.single("image"), async (req, res) => {
   try {
     const updateData = {
       name: req.body.name,
@@ -78,7 +78,7 @@ router.put("/:id", authMiddleware, upload.single("image"), async (req, res) => {
 });
 
 /* -------------------- DELETE -------------------- */
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   try {
     const product = await Product.findOneAndDelete({
       _id: req.params.id,
