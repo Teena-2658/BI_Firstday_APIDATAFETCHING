@@ -19,6 +19,11 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: false, // ✅ allow product without image also
     },
+     vendor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  }
   },
   { timestamps: true }
 );
