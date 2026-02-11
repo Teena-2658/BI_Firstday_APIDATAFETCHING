@@ -7,6 +7,8 @@ const { connectDB } = require("./common/db/mongo");
 
 const authRoutes = require("./modules/auth/auth.routes");
 const productRoutes = require("./modules/products/product.routes");
+app.use("/api/cart", require("./modules/products/cartRoutes"));
+
 
 const app = express();
 
