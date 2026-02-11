@@ -6,6 +6,8 @@ import ProductList from "./components/ProductList";
 import ProfilePage from "./pages/ProfilePage"; // ← import ProfilePage
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import MyOrders from "./pages/MyOrders";
+import HomePage from "./pages/HomePage";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -29,30 +31,36 @@ function App() {
       />
 
       <Routes>
-        <Route path="/signup" element={<Signup />} />
 
-        <Route
-          path="/login"
-          element={
-            <Login
-              setIsLoggedIn={setIsLoggedIn}
-              setUsername={setUsername} // ← pass setUsername
-            />
-          }
-        />
+  <Route path="/" element={<HomePage />} />
 
-        {/* Profile Page Route */}
-        <Route
-          path="/profile"
-          element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />}
-        />
+  <Route path="/signup" element={<Signup />} />
 
-        {/* Home / ProductList */}
-        <Route
-          path="/"
-          element={isLoggedIn ? <ProductList /> : <Navigate to="/login" />}
-        />
-      </Routes>
+  <Route
+    path="/login"
+    element={
+      <Login
+        setIsLoggedIn={setIsLoggedIn}
+        setUsername={setUsername}
+      />
+    }
+  />
+
+  {/* Products AFTER login */}
+  <Route
+    path="/products"
+    element={isLoggedIn ? <ProductList /> : <Navigate to="/login" />}
+  />
+
+  <Route path="/orders" element={<MyOrders />} />
+
+  <Route
+    path="/profile"
+    element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />}
+  />
+
+</Routes>
+
     </BrowserRouter>
   );
 }

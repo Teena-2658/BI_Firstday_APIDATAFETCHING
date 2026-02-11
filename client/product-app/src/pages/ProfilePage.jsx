@@ -11,13 +11,10 @@ export default function ProfilePage() {
   const [editingId, setEditingId] = useState(null);
 
   const fileRef = useRef(null);
-
   const token = localStorage.getItem("token");
 
   const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${token}` },
     withCredentials: true,
   };
 
@@ -26,7 +23,7 @@ export default function ProfilePage() {
       const res = await axios.get(`${BACKEND_URL}/api/products`, config);
       setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("FETCH ERROR:", err.response?.data || err.message);
+      console.error(err);
     }
   };
 
@@ -36,11 +33,6 @@ export default function ProfilePage() {
 
   const handleAddOrUpdate = async (e) => {
     e.preventDefault();
-
-    if (!name || !price) {
-      alert("Name and price required");
-      return;
-    }
 
     const formData = new FormData();
     formData.append("name", name);
@@ -56,21 +48,16 @@ export default function ProfilePage() {
         );
         setEditingId(null);
       } else {
-        await axios.post(
-          `${BACKEND_URL}/api/products`,
-          formData,
-          config
-        );
+        await axios.post(`${BACKEND_URL}/api/products`, formData, config);
       }
 
       setName("");
       setPrice("");
       setImage(null);
       if (fileRef.current) fileRef.current.value = "";
-
       fetchProducts();
     } catch (err) {
-      console.error("SAVE ERROR:", err.response?.data || err.message);
+      console.error(err);
     }
   };
 
@@ -82,33 +69,29 @@ export default function ProfilePage() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
-
-    try {
-      await axios.delete(`${BACKEND_URL}/api/products/${id}`, config);
-      fetchProducts();
-    } catch (err) {
-      console.error("DELETE ERROR:", err.response?.data || err.message);
-    }
+    await axios.delete(`${BACKEND_URL}/api/products/${id}`, config);
+    fetchProducts();
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-rose-100 p-6">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-6 text-gray-800">
-          My Products
+
+        <h2 className="text-4xl font-bold mb-8 text-pink-600 text-center">
+          🌸 My Products
         </h2>
 
         {/* FORM */}
         <form
           onSubmit={handleAddOrUpdate}
-          className="bg-white shadow-lg rounded-2xl p-6 mb-8 flex flex-wrap gap-3 items-center"
+          className="bg-white/80 backdrop-blur shadow-xl rounded-2xl p-6 mb-8 flex flex-wrap gap-3 items-center border border-pink-100"
         >
           <input
             type="text"
             placeholder="Product Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="border rounded-lg px-3 py-2 w-48 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="border border-pink-200 rounded-lg px-3 py-2 w-48 focus:ring-2 focus:ring-pink-400 outline-none"
             required
           />
 
@@ -117,7 +100,7 @@ export default function ProfilePage() {
             placeholder="Price"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            className="border rounded-lg px-3 py-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="border border-pink-200 rounded-lg px-3 py-2 w-32 focus:ring-2 focus:ring-pink-400 outline-none"
             required
           />
 
@@ -131,7 +114,7 @@ export default function ProfilePage() {
 
           <button
             type="submit"
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition duration-200"
+            className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-2 rounded-lg shadow-md hover:scale-105 hover:shadow-lg transition"
           >
             {editingId ? "Update Product" : "Add Product"}
           </button>
@@ -143,12 +126,15 @@ export default function ProfilePage() {
             {products.map((p) => (
               <div
                 key={p._id}
-                className="bg-white rounded-2xl shadow-md p-4 hover:shadow-xl transition duration-300"
+                className="bg-white rounded-2xl shadow-md p-4 hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-pink-100"
               >
                 <h3 className="text-lg font-semibold text-gray-800">
                   {p.name}
                 </h3>
-                <p className="text-gray-600 mb-2">₹{p.price}</p>
+
+                <p className="text-pink-600 font-semibold mb-2">
+                  ₹{p.price}
+                </p>
 
                 {p.image && (
                   <img
@@ -161,14 +147,14 @@ export default function ProfilePage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(p)}
-                    className="flex-1 bg-yellow-500 text-white py-1 rounded-lg hover:bg-yellow-600 transition"
+                    className="flex-1 bg-pink-500 text-white py-1 rounded-lg hover:bg-pink-600 transition"
                   >
                     Edit
                   </button>
 
                   <button
                     onClick={() => handleDelete(p._id)}
-                    className="flex-1 bg-red-500 text-white py-1 rounded-lg hover:bg-red-600 transition"
+                    className="flex-1 bg-rose-500 text-white py-1 rounded-lg hover:bg-rose-600 transition"
                   >
                     Delete
                   </button>
@@ -177,7 +163,9 @@ export default function ProfilePage() {
             ))}
           </div>
         ) : (
-          <p className="text-gray-600">No products added yet.</p>
+          <p className="text-center text-gray-600">
+            No products added yet.
+          </p>
         )}
       </div>
     </div>

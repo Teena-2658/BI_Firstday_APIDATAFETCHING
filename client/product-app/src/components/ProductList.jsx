@@ -1,33 +1,64 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { CartContext } from "../context/CartContext.jsx";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [sortOption, setSortOption] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [cart,setcart]=useState([])
+
+  const { addToCart } = useContext(CartContext);
+
   const productsPerPage = 5;
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("https://dummyjson.com/products");
-        const data = await res.json();
-        setProducts(data.products);
+        const dummyRes = await fetch("https://dummyjson.com/products");
+        const dummyData = await dummyRes.json();
+
+        const formattedDummy = dummyData.products.map((p) => ({
+          id: p.id,
+          title: p.title,
+          price: p.price,
+          rating: p.rating,
+          thumbnail: p.thumbnail,
+          source: "dummy",
+        }));
+
+        const token = localStorage.getItem("token");
+
+        const backendRes = await fetch(
+          "https://bi-firstday-apidatafetching.onrender.com/api/products",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const backendData = await backendRes.json();
+
+        const formattedBackend = backendData.map((p) => ({
+          id: p._id,
+          title: p.name,
+          price: p.price,
+          rating: 4.5,
+          thumbnail: p.image
+            ? `https://bi-firstday-apidatafetching.onrender.com/${p.image}`
+            : "https://via.placeholder.com/150",
+          source: "vendor",
+        }));
+
+        setProducts([...formattedDummy, ...formattedBackend]);
       } catch (err) {
         console.error(err);
       }
     };
+
     fetchProducts();
   }, []);
 
-  useEffect(()=>{
-    console.log(cart);
-  })
-
   const filteredProducts = products.filter((product) =>
     product.title.toLowerCase().includes(search.toLowerCase())
-//   product.title.includes(search)
   );
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -38,44 +69,17 @@ const ProductList = () => {
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+
   const currentProducts = sortedProducts.slice(
     indexOfFirstProduct,
     indexOfLastProduct
   );
+
   const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
 
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-
-
-function addToCart(product) {
-  setcart(prevCart => {
-    const existingItem = prevCart.find(item => item.id === product.id);
-
-    if (existingItem) {
-      // same product → quantity increase
-      return prevCart.map(item =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-    } else {
-      // new product
-      return [...prevCart, { ...product, quantity: 1 }];
-    }
-  });
-}
-
-
-
-
   return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-pink-50 to-rose-100 p-4 md:p-6">
 
-    <div className="p-4 md:p-6">
       {/* Search + Sort */}
       <div className="flex flex-col sm:flex-row sm:justify-between mb-6 gap-4">
         <input
@@ -83,12 +87,13 @@ function addToCart(product) {
           placeholder="Search products..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border rounded px-3 py-2 w-full sm:w-1/2"
+          className="border border-pink-200 rounded-lg px-3 py-2 w-full sm:w-1/2 focus:ring-2 focus:ring-pink-400 outline-none"
         />
+
         <select
           value={sortOption}
           onChange={(e) => setSortOption(e.target.value)}
-          className="border rounded px-3 py-2 w-full sm:w-1/3"
+          className="border border-pink-200 rounded-lg px-3 py-2 w-full sm:w-1/3 focus:ring-2 focus:ring-pink-400 outline-none"
         >
           <option value="">Sort By Name</option>
           <option value="name-asc">A to Z</option>
@@ -96,105 +101,69 @@ function addToCart(product) {
         </select>
       </div>
 
-    {/* Cart Info */}
-    <div className="max-w-md mx-auto my-8 bg-white border rounded-lg shadow-md p-5">
-  <h2 className="bg-blue-950 text-white px-4 py-2 rounded disabled:opacity-50">ADD TO CART SECTION</h2>
-
-  {cart.length === 0 ? (
-    <p className="text-gray-500">No items in the cart</p>
-  ) : (
-    <>
-      {/* Total Items */}
-      <p className="text-sm text-gray-600 mb-3">
-        Total Items:{" "}
-        <span className="font-semibold">
-          {cart.reduce((sum, item) => sum + item.quantity, 0)}
-        </span>
-      </p>
-
-      {/* Product List */}
-      <div className="border-t border-b py-3 space-y-2">
-        {cart.map(item => (
+      {/* Product Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {currentProducts.map((product) => (
           <div
-            key={item.id}
-            className="flex justify-between items-center text-sm"
+            key={`${product.source}-${product.id}`}
+            className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition duration-300 border border-pink-100"
           >
-            <div>
-              <p className="font-medium text-gray-800">{item.title}</p>
-              <p className="text-gray-500">
-                ${item.price} × {item.quantity}
-              </p>
-            </div>
+            <img
+              src={product.thumbnail}
+              alt={product.title}
+              className="w-full h-48 object-cover mb-3 rounded-lg"
+            />
 
-            <p className="font-semibold text-gray-700">
-              ${Number(item.price) * item.quantity}
+            <h2 className="font-semibold text-lg text-center text-gray-800">
+              {product.title}
+            </h2>
+
+            <p className="text-pink-600 font-medium mt-1">
+              ₹{product.price}
             </p>
+
+            <p className="text-yellow-500 mt-1">
+              Rating: {product.rating}
+            </p>
+
+            <button
+              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-2 rounded-lg mt-3 hover:scale-105 transition"
+              onClick={() => addToCart(product)}
+            >
+              Add to cart
+            </button>
           </div>
         ))}
       </div>
 
-      {/* Total Amount */}
-      <div className="flex justify-between items-center mt-4">
-        <p className="text-lg font-bold text-gray-800">Total Amount</p>
-        <p className="text-lg font-bold text-green-700">
-          $
-          {cart.reduce(
-            (sum, item) => sum + Number(item.price) * item.quantity,
-            0
-          )}
-        </p>
-      </div>
-    </>
-  )}
-</div>
-
-      {/* Product Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {currentProducts.map((product) => (
-  <div key={product.id} className="border rounded shadow p-4 flex flex-col items-center hover:shadow-lg transition">
-    <img src={product.thumbnail} alt={product.title} className="w-full h-48 object-cover mb-3 rounded" />
-    <h2 className="font-bold text-lg text-center">{product.title}</h2>
-    <p className="text-gray-600 mt-1">${product.price}</p>
-    <p className="text-yellow-500 mt-1">Rating: {product.rating}</p>
-    {/* <button className="bg-green-950 text-white px-4 py-2 rounded disabled:opacity-50"onClick={()=>addToCart(products)}>Add to cart</button> */}
-    <button
-  className="bg-green-950 text-white px-4 py-2 rounded"
-  onClick={() => addToCart(product)}
->
-  Add to cart
-</button>
-
-  </div>
-))}
-
-      </div>
-
       {/* Pagination */}
-      <div className="flex flex-col sm:flex-row justify-center items-center mt-6 gap-4">
-        <button className="bg-pink-950 text-white px-4 py-2 rounded disabled:opacity-50"
-          onClick={handlePrev}
-          disabled={currentPage === 1}
-        //   className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+      <div className="flex justify-center items-center mt-8 gap-4">
+        <button
+          className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition"
+          onClick={() =>
+            setCurrentPage((prev) => Math.max(prev - 1, 1))
+          }
         >
           Prev
         </button>
-        <span className="bg-blue-950 text-white px-4 py-2 rounded disabled:opacity-50">
+
+        <span className="bg-white border border-pink-200 text-pink-600 px-4 py-2 rounded-lg shadow">
           Page {currentPage} of {totalPages}
         </span>
-        <button className="bg-pink-950 text-white px-4 py-2 rounded disabled:opacity-50"
-          onClick={handleNext}
-          disabled={currentPage === totalPages}
-        //   className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+
+        <button
+          className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition"
+          onClick={() =>
+            setCurrentPage((prev) =>
+              Math.min(prev + 1, totalPages)
+            )
+          }
         >
           Next
         </button>
       </div>
-
-    
     </div>
   );
 };
 
 export default ProductList;
-
-
