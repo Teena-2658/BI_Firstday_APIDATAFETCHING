@@ -58,12 +58,17 @@ router.post(
 ========================================================= */
 router.get("/", verifyToken, async (req, res) => {
   try {
-    const products = await Product.find({
-      vendor: req.user.id   // 🔥 only this vendor's products
-    }).sort({ createdAt: -1 });
+    let products;
+
+    if (req.user.role === "vendor") {
+      // vendor apne products dekhe
+      products = await Product.find({ user: req.user.id });
+    } else {
+      // customer sab products dekhe
+      products = await Product.find();
+    }
 
     res.json(products);
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
