@@ -4,10 +4,9 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 const { connectDB } = require("./common/db/mongo");
-
 const authRoutes = require("./modules/auth/auth.routes");
 const productRoutes = require("./modules/products/product.routes");
-app.use("/api/cart", require("./modules/products/cartRoutes"));
+
 
 
 const app = express();
@@ -46,7 +45,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 /* -------------------- ROUTES -------------------- */
 app.use("/api", authRoutes);
 app.use("/api/products", productRoutes);
-
+app.use("/api/cart", require("./modules/products/cartRoutes"));
 /* -------------------- ROOT -------------------- */
 app.get("/", (req, res) => {
   res.send("API running 🚀");
