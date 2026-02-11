@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const Product = require("./product.model");
-const verifyToken = require("../middleware/verifyToken");
+const verifyToken = require('../auth/auth.middleware');
+
 
 // const authMiddleware = require("../auth/auth.middleware");
 
