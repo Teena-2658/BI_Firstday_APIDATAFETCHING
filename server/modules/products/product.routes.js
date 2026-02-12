@@ -62,7 +62,7 @@ router.get("/", verifyToken, async (req, res) => {
 
     if (req.user.role === "vendor") {
       // vendor apne products dekhe
-      products = await Product.find({ user: req.user.id });
+      products = await Product.find({ vendor: req.user.id });
     } else {
       // customer sab products dekhe
       products = await Product.find();

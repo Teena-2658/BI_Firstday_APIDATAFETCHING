@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
   {
-    user: {
+    vendor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: false, // ✅ removed required
+      required: true,
     },
     name: {
       type: String,
@@ -17,15 +17,10 @@ const productSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: false, // ✅ allow product without image also
-    },
-     vendor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  }
+    }
   },
   { timestamps: true }
 );
+
 
 module.exports = mongoose.model("Product", productSchema);
