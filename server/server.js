@@ -3,13 +3,14 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
+
 const { connectDB } = require("./common/db/mongo");
+
+// ✅ ROUTE IMPORTS
 const authRoutes = require("./modules/auth/auth.routes");
 const productRoutes = require("./modules/products/product.routes");
-
-
-
-
+const cartRoutes = require("./modules/products/cartRoutes");
+const wishlistRoutes = require("./modules/products/wishlist.routes"); // ✅ ADDED
 
 const app = express();
 
@@ -21,7 +22,7 @@ if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
 
-/* -------------------- CORS FIX (IMPORTANT) -------------------- */
+/* -------------------- CORS -------------------- */
 app.use(
   cors({
     origin: [
@@ -36,19 +37,19 @@ app.use(
   })
 );
 
-
 /* -------------------- MIDDLEWARE -------------------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* -------------------- STATIC FILES -------------------- */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/api/wishlist", wishlistRoutes);
 
 /* -------------------- ROUTES -------------------- */
 app.use("/api", authRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/cart", require("./modules/products/cartRoutes"));
+app.use("/api/cart", cartRoutes);
+app.use("/api/wishlist", wishlistRoutes); // ✅ NOW PROPERLY DEFINED
+
 /* -------------------- ROOT -------------------- */
 app.get("/", (req, res) => {
   res.send("API running 🚀");
@@ -56,6 +57,7 @@ app.get("/", (req, res) => {
 
 /* -------------------- START SERVER -------------------- */
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

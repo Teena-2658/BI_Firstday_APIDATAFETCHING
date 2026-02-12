@@ -1,7 +1,6 @@
-import express from "express";
-import verifyToken from "../auth/auth.middleware.js";
-import Wishlist from "../../common/models/wishlist.model.js";
-
+const express = require("express");
+const verifyToken = require("../auth/auth.middleware");
+const Wishlist = require("./wishlist.model");
 
 const router = express.Router();
 
@@ -62,4 +61,4 @@ router.delete("/:id", verifyToken, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;
