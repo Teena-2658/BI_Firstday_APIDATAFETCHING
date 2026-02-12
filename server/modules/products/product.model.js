@@ -7,20 +7,28 @@ const productSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     name: {
       type: String,
       required: true,
     },
+
     price: {
       type: Number,
       required: true,
     },
+
     image: {
       type: String,
-    }
+    },
+
+    status: {
+      type: String,
+      enum: ["draft", "published"],
+      default: "published",
+    },
   },
   { timestamps: true }
 );
-
 
 module.exports = mongoose.model("Product", productSchema);

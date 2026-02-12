@@ -2,12 +2,10 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const Product = require("./product.model");
-const verifyToken = require('../auth/auth.middleware');
+const verifyToken = require("../auth/auth.middleware");
 
+/* ================= MULTER ================= */
 
-// const authMiddleware = require("../auth/auth.middleware");
-
-/* -------------------- MULTER CONFIG -------------------- */
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
@@ -23,76 +21,74 @@ const upload = multer({ storage });
 
 /* =========================================================
    CREATE PRODUCT
-   URL => POST /api/products
 ========================================================= */
 
-router.post(
-  "/",
-  verifyToken,                 // 🔥 ADD THIS
-  upload.single("image"),
-  async (req, res) => {
-    try {
-      const { name, price } = req.body;
-
-      const product = await Product.create({
-        name,
-        price,
-        image: req.file ? req.file.path : null,
-        vendor: req.user.id   // 🔥 ADD THIS LINE
-      });
-
-      res.status(201).json({
-        message: "Product created successfully",
-        product,
-      });
-
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-);
-
-/* =========================================================
-   GET ALL PRODUCTS
-   URL => GET /api/products
-========================================================= */
-router.get("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, upload.single("image"), async (req, res) => {
   try {
-    let products;
-
-    if (req.user.role === "vendor") {
-      // vendor apne products dekhe
-      products = await Product.find({ vendor: req.user.id });
-    } else {
-      // customer sab products dekhe
-      products = await Product.find();
+    if (req.user.role !== "vendor") {
+      return res.status(403).json({ error: "Only vendors can create products" });
     }
 
-    res.json(products);
+    const { name, price, status } = req.body;
+
+    const product = await Product.create({
+      name,
+      price,
+      status: status || "published",
+      image: req.file ? req.file.path : null,
+      vendor: req.user.id,
+    });
+
+    res.status(201).json(product);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+/* =========================================================
+   GET PRODUCTS
+========================================================= */
+
+router.get("/", verifyToken, async (req, res) => {
+  try {
+    let products;
+
+    if (req.user.role === "vendor") {
+      // Vendor sees ONLY his own products
+      products = await Product.find({ vendor: req.user.id })
+        .sort({ createdAt: -1 });
+    } else {
+      // Customer sees only published products
+      products = await Product.find({ status: "published" })
+        .sort({ createdAt: -1 });
+    }
+
+    res.json(products);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 /* =========================================================
-   UPDATE PRODUCT
-   URL => PUT /api/products/:id
+   UPDATE PRODUCT (Owner Only)
 ========================================================= */
+
 router.put("/:id", verifyToken, upload.single("image"), async (req, res) => {
   try {
-
     const product = await Product.findOne({
       _id: req.params.id,
-      vendor: req.user.id   // 🔥 ensure ownership
+      vendor: req.user.id,
     });
 
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    product.name = req.body.name;
-    product.price = req.body.price;
+    product.name = req.body.name || product.name;
+    product.price = req.body.price || product.price;
+    product.status = req.body.status || product.status;
 
     if (req.file) {
       product.image = req.file.path;
@@ -107,24 +103,22 @@ router.put("/:id", verifyToken, upload.single("image"), async (req, res) => {
   }
 });
 
-
 /* =========================================================
-   DELETE PRODUCT
-   URL => DELETE /api/products/:id
+   DELETE PRODUCT (Owner Only)
 ========================================================= */
+
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
-
     const product = await Product.findOneAndDelete({
       _id: req.params.id,
-      vendor: req.user.id   // 🔥 ownership check
+      vendor: req.user.id,
     });
 
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    res.json({ message: "Product deleted successfully" });
+    res.json({ message: "Deleted successfully" });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
