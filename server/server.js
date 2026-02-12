@@ -6,7 +6,8 @@ const fs = require("fs");
 const { connectDB } = require("./common/db/mongo");
 const authRoutes = require("./modules/auth/auth.routes");
 const productRoutes = require("./modules/products/product.routes");
-const wishlistRoutes = require("./products/wishlist.routes");
+const wishlistRoutes = require("./modules/products/wishlist.routes.js");
+
 
 
 
