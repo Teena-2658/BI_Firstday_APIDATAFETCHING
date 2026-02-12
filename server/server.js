@@ -6,7 +6,8 @@ const fs = require("fs");
 const { connectDB } = require("./common/db/mongo");
 const authRoutes = require("./modules/auth/auth.routes");
 const productRoutes = require("./modules/products/product.routes");
-const wishlistRoutes=require("./wishlist.routes.js")
+const wishlistRoutes = require("./products/wishlist.routes");
+
 
 
 const app = express();
@@ -42,6 +43,7 @@ app.use(express.urlencoded({ extended: true }));
 /* -------------------- STATIC FILES -------------------- */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/wishlist", wishlistRoutes);
+
 /* -------------------- ROUTES -------------------- */
 app.use("/api", authRoutes);
 app.use("/api/products", productRoutes);
