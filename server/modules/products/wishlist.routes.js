@@ -1,6 +1,6 @@
 const express = require("express");
 const verifyToken = require("../auth/auth.middleware");
-const Wishlist = require("./wishlist.model");
+const Wishlist = require("../../common/models/wishlist.model.js");
 
 const router = express.Router();
 
